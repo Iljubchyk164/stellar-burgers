@@ -1,6 +1,10 @@
 .wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   margin: 0 auto;
   width: 640px;
+  height: 100%;
 }
 .number {
   text-align: center;

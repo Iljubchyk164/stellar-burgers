@@ -1,22 +1,31 @@
-import { FC, useMemo } from 'react';
+import { FC, useEffect, useMemo } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
+import { useDispatch, useSelector } from '../../services/store';
+import { useParams } from 'react-router-dom';
+import { getOrderByNumber } from '../slices/ordersSlice';
+import { ingredientsFetch } from '../slices/ingredientsSlice';
 
 export const OrderInfo: FC = () => {
   /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+  const dispatch = useDispatch();
+  const { number } = useParams<{ number: string }>();
+  const orderNumber = number ? parseInt(number) : -1;
+  const arrayIngredients = useSelector(
+    (store) => store.ingredientsSlice.ingredients
+  );
+  const orderData = useSelector((store) => store.ordersSlice.orderModalData);
+  useEffect(() => {
+    dispatch(getOrderByNumber(orderNumber));
+    dispatch(ingredientsFetch());
+  }, [dispatch]);
 
-  const ingredients: TIngredient[] = [];
-
+  const ingredients = orderData
+    ? orderData.ingredients.map((id) =>
+        arrayIngredients.find((item) => item._id === id)
+      )
+    : [];
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
@@ -30,7 +39,7 @@ export const OrderInfo: FC = () => {
     const ingredientsInfo = orderData.ingredients.reduce(
       (acc: TIngredientsWithCount, item) => {
         if (!acc[item]) {
-          const ingredient = ingredients.find((ing) => ing._id === item);
+          const ingredient = ingredients.find((ing) => ing?._id === item);
           if (ingredient) {
             acc[item] = {
               ...ingredient,
@@ -45,7 +54,6 @@ export const OrderInfo: FC = () => {
       },
       {}
     );
-
     const total = Object.values(ingredientsInfo).reduce(
       (acc, item) => acc + item.price * item.count,
       0
@@ -58,10 +66,8 @@ export const OrderInfo: FC = () => {
       total
     };
   }, [orderData, ingredients]);
-
   if (!orderInfo) {
     return <Preloader />;
   }
-
   return <OrderInfoUI orderInfo={orderInfo} />;
 };
