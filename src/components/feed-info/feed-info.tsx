@@ -4,6 +4,11 @@ import { TOrder } from '@utils-types';
 import { FeedInfoUI } from '../ui/feed-info';
 import { useDispatch, useSelector } from '../../services/store';
 import { getUserOrders } from '../slices/ordersSlice';
+import {
+  selectTotalOrders,
+  selectTotalToday,
+  selectUserOrdersData
+} from '@selectors';
 
 const getOrders = (orders: TOrder[], status: string): number[] =>
   orders
@@ -13,9 +18,9 @@ const getOrders = (orders: TOrder[], status: string): number[] =>
 
 export const FeedInfo: FC = () => {
   /** TODO: взять переменные из стора */
-  const { totalOrders, totalToday, userOrdersData } = useSelector(
-    (store) => store.ordersSlice
-  );
+  const totalOrders = useSelector(selectTotalOrders);
+  const totalToday = useSelector(selectTotalToday);
+  const userOrdersData = useSelector(selectUserOrdersData);
   const dispatch = useDispatch();
 
   useEffect(() => {

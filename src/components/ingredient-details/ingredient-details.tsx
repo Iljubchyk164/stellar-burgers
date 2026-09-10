@@ -1,19 +1,15 @@
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 import { Preloader } from '../ui/preloader';
 import { IngredientDetailsUI } from '../ui/ingredient-details';
 import { useDispatch, useSelector } from '../../services/store';
 import { useParams } from 'react-router-dom';
-import { ingredientsFetch } from '../slices/ingredientsSlice';
+import { selectIngredients } from '@selectors';
 
 export const IngredientDetails: FC = () => {
   /** TODO: взять переменную из стора */
 
   const { id } = useParams<{ id: string }>();
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(ingredientsFetch());
-  }, [dispatch]);
-  const { ingredients } = useSelector((store) => store.ingredientsSlice);
+  const ingredients = useSelector(selectIngredients);
 
   const ingredientData = ingredients.find(
     (ingredient) => ingredient._id === id

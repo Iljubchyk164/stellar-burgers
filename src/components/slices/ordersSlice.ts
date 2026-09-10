@@ -9,6 +9,7 @@ import { TOrder } from '@utils-types';
 
 interface OrdersState {
   orderRequest: boolean;
+  orderModalDataResponse: TOrder | null;
   orderModalData: TOrder | null;
   orderData: TOrder[];
   userOrdersData: TOrder[];
@@ -19,6 +20,7 @@ interface OrdersState {
 
 const initialState: OrdersState = {
   orderRequest: false,
+  orderModalDataResponse: null,
   orderModalData: null,
   orderData: [],
   userOrdersData: [],
@@ -54,6 +56,7 @@ const ordersSlice = createSlice({
     closeOrderModal: (state) => {
       state.orderRequest = false;
       state.orderModalData = null;
+      state.orderModalDataResponse = null;
     },
     deleteUserOrders: (state) => {
       state.userOrdersData = [];
@@ -67,7 +70,7 @@ const ordersSlice = createSlice({
       })
       .addCase(postOrder.fulfilled, (state, action) => {
         state.orderRequest = false;
-        state.orderModalData = {
+        state.orderModalDataResponse = {
           _id: action.payload.order._id,
           status: action.payload.order.status,
           name: action.payload.order.name,
@@ -76,7 +79,6 @@ const ordersSlice = createSlice({
           number: action.payload.order.number,
           ingredients: []
         };
-        console.log(state.orderModalData);
         state.error = null;
       })
       .addCase(postOrder.rejected, (state, action) => {

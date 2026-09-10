@@ -8,15 +8,22 @@ import {
 } from '../slices/ordersSlice';
 import { useNavigate } from 'react-router-dom';
 import { clearConstructor } from '../slices/constructorSlice';
+import {
+  selectConstructorBun,
+  selectConstructorIngredients,
+  selectIsAuth,
+  selectOrderModalDataResponse,
+  selectOrderRequest
+} from '@selectors';
 
 export const BurgerConstructor: FC = () => {
   /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
 
-  const { bun, ingredients } = useSelector((store) => store.constructorSlice);
-  const { orderRequest, orderModalData } = useSelector(
-    (store) => store.ordersSlice
-  );
-  const { isAuth } = useSelector((store) => store.userSlice);
+  const orderRequest = useSelector(selectOrderRequest);
+  const orderModalDataResponse = useSelector(selectOrderModalDataResponse);
+  const bun = useSelector(selectConstructorBun);
+  const ingredients = useSelector(selectConstructorIngredients);
+  const isAuth = useSelector(selectIsAuth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const constructorItems = {
@@ -59,7 +66,7 @@ export const BurgerConstructor: FC = () => {
       price={price}
       orderRequest={orderRequest}
       constructorItems={constructorItems}
-      orderModalData={orderModalData}
+      orderModalData={orderModalDataResponse}
       onOrderClick={onOrderClick}
       closeOrderModal={closeOrderModal}
     />

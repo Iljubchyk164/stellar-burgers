@@ -2,6 +2,7 @@ import React, { useLayoutEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from '../../services/store';
 import { getUser } from '../slices/userSlice';
+import { selectIsAuth } from '@selectors';
 
 type ProtectedRouteProps = {
   onlyUnAuth?: boolean;
@@ -14,7 +15,7 @@ export const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const isAuth = useSelector((state) => state.userSlice.isAuth);
+  const isAuth = useSelector(selectIsAuth);
   useLayoutEffect(() => {
     dispatch(getUser());
   }, [dispatch]);

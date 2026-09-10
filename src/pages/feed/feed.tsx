@@ -3,15 +3,13 @@ import { FeedUI } from '@ui-pages';
 import { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
 import { getAllOrders } from '../../components/slices/ordersSlice';
-import { ingredientsFetch } from '../../components/slices/ingredientsSlice';
+import { selectIngredientsLoading, selectOrderData } from '@selectors';
 
 export const Feed: FC = () => {
   /** TODO: взять переменную из стора */
   const dispatch = useDispatch();
-  const { isIngredientsLoading } = useSelector(
-    (store) => store.ingredientsSlice
-  );
-  const { orderData } = useSelector((store) => store.ordersSlice);
+  const isIngredientsLoading = useSelector(selectIngredientsLoading);
+  const orderData = useSelector(selectOrderData);
 
   useEffect(() => {
     dispatch(getAllOrders());

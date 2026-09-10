@@ -17,8 +17,11 @@ import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from '../protected-route';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { closeOrderModal } from '../slices/ordersSlice';
-import { useDispatch } from '../../services/store';
+import { useDispatch, useSelector } from '../../services/store';
 import { getUser } from '../slices/userSlice';
+import { ingredientsFetch } from '../slices/ingredientsSlice';
+import { selectIngredients, selectIsAuth } from '@selectors';
+import { useEffect } from 'react';
 
 const App = () => {
   const location = useLocation();
@@ -29,7 +32,17 @@ const App = () => {
   const profileOrderNumber = location.pathname.match(
     /\/profile\/orders\/(\d+)/
   )?.[1];
-  dispatch(getUser());
+  const ingredients = useSelector(selectIngredients);
+  const isAuth = useSelector(selectIsAuth);
+  useEffect(() => {
+    if (!isAuth) {
+      dispatch(getUser());
+    }
+    if (ingredients.length === 0) {
+      dispatch(ingredientsFetch());
+    }
+  }, [dispatch]);
+
   function modalClose() {
     navigate(-1);
     dispatch(closeOrderModal());
