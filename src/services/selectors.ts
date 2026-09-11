@@ -42,4 +42,7 @@ export const selectUserData = (store: RootState) => store.userSlice.userData;
 
 export const selectIsAuth = (store: RootState) => store.userSlice.isAuth;
 
+export const selectIsAuthChecked = (store: RootState) =>
+  store.userSlice.isAuthChecked;
+
 export const selectUserError = (store: RootState) => store.userSlice.error;

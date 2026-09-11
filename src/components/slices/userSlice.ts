@@ -14,12 +14,14 @@ import { deleteCookie, setCookie } from '../../utils/cookie';
 interface UserState {
   userData: TUser | null;
   isAuth: boolean;
+  isAuthChecked: boolean;
   error: string | null;
 }
 
 const initialState: UserState = {
   userData: null,
   isAuth: false,
+  isAuthChecked: false,
   error: null
 };
 
@@ -56,23 +58,28 @@ const userSlice = createSlice({
     builder
       .addCase(postRegister.pending, (state) => {
         state.error = null;
+        state.isAuthChecked = false;
       })
       .addCase(postRegister.fulfilled, (state, action) => {
         state.isAuth = true;
         state.userData = action.payload.user;
         state.error = null;
+        state.isAuthChecked = true;
         localStorage.setItem('refreshToken', action.payload.refreshToken);
         setCookie('accessToken', action.payload.accessToken);
       })
       .addCase(postRegister.rejected, (state, action) => {
         state.isAuth = false;
+        state.isAuthChecked = true;
         state.error = action.error.message || 'Ошибка регистрации';
       })
       .addCase(postLogin.pending, (state) => {
         state.error = null;
+        state.isAuthChecked = false;
       })
       .addCase(postLogin.fulfilled, (state, action) => {
         state.isAuth = true;
+        state.isAuthChecked = true;
         state.userData = action.payload.user;
         state.error = null;
         localStorage.setItem('refreshToken', action.payload.refreshToken);
@@ -80,29 +87,36 @@ const userSlice = createSlice({
       })
       .addCase(postLogin.rejected, (state, action) => {
         state.error = action.error.message || 'Ошибка входа';
+        state.isAuthChecked = true;
       })
       .addCase(getUser.pending, (state) => {
         state.error = null;
+        state.isAuthChecked = false;
       })
       .addCase(getUser.fulfilled, (state, action) => {
         state.userData = action.payload.user;
         state.isAuth = true;
+        state.isAuthChecked = true;
       })
       .addCase(getUser.rejected, (state, action) => {
         state.error =
           action.error.message || 'Ошибка получения данных пользователя';
+        state.isAuthChecked = true;
       })
       .addCase(logoutUser.pending, (state) => {
         state.error = null;
+        state.isAuthChecked = false;
       })
       .addCase(logoutUser.fulfilled, (state, action) => {
         state.isAuth = false;
+        state.isAuthChecked = true;
         state.userData = null;
         localStorage.clear();
         deleteCookie('accessToken');
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.error = action.error.message || 'Ошибка входа';
+        state.isAuthChecked = true;
       })
       .addCase(updateUser.pending, (state) => {
         state.error = null;
