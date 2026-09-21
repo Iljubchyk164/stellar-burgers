@@ -1,5 +1,9 @@
 .header {
   background-color: var(--background);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
 }
 .menu {
   display: flex;
