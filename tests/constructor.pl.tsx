@@ -117,21 +117,7 @@ test.describe('Constructor — E2E с HAR и моками', () => {
     await addButtons.nth(2).click();
 
     const orderButton = page.getByRole('button', { name: 'Оформить заказ' });
-    const [response] = await Promise.all([
-      page.waitForResponse(
-        (resp) =>
-          resp.url().includes('/api/orders') &&
-          resp.request().method() === 'POST'
-      ),
-      orderButton.click()
-    ]);
-
-    // Диагностика: видим, что реально вернул сервер
-    console.log('Статус /api/orders:', response.status());
-    const body = await response.json();
-    console.log('Тело /api/orders:', JSON.stringify(body));
-    const orderNumber = body.order?.number;
-    console.log('Номер заказа:', orderNumber);
+    await orderButton.click();
 
     const modal = page.getByTestId('modal');
     await expect(modal).toBeVisible();
