@@ -1,32 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import {
-  mockUserAndOrderRoutes,
-  mockOrder,
-  setAuthTokens
-} from '../e2e/mocks/user.mock';
-
-// test.describe('Список ингредиентов с HAR', () => {
-//   test('должен загрузить ингредиенты из HAR-файла', async ({ page }) => {
-//     await page.routeFromHAR('./e2e/hars/ingredients.har', {
-//       url: '**/api/ingredients',
-//       update: false
-//     });
-//
-//     await page.goto('/');
-//
-//     const list = page.getByTestId('ingredients-list').first();
-//     await expect(list).toBeVisible();
-//   });
-//
-//   test('должен работать без реального сервера', async ({ page }) => {
-//     await page.routeFromHAR('./e2e/hars/ingredients.har', {
-//       url: '**/api/ingredients'
-//     });
-//
-//     await page.goto('/');
-//     await expect(page.getByTestId('ingredients-list').first()).toBeVisible();
-//   });
-// });
+import { setCookie } from '../src/utils/cookie';
 
 async function addIngredient(page: Page, name: string) {
   await page
@@ -43,9 +16,20 @@ test.describe('Constructor — E2E с HAR и моками', () => {
       update: false
     });
 
-    await mockUserAndOrderRoutes(page);
+    await page.routeFromHAR('./e2e/hars/user.har', {
+      url: '**/api/auth/user',
+      update: false
+    });
 
-    await setAuthTokens(page);
+    await page.routeFromHAR('./e2e/hars/order.har', {
+      url: '**/api/orders',
+      update: false
+    });
+
+    await page.addInitScript(() => {
+      document.cookie = 'accessToken=Bearer test-accessToken; path=/';
+      localStorage.setItem('refreshToken', 'test-refreshToken');
+    });
 
     await page.goto('/');
   });
@@ -133,11 +117,25 @@ test.describe('Constructor — E2E с HAR и моками', () => {
     await addButtons.nth(2).click();
 
     const orderButton = page.getByRole('button', { name: 'Оформить заказ' });
-    await orderButton.click();
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (resp) =>
+          resp.url().includes('/api/orders') &&
+          resp.request().method() === 'POST'
+      ),
+      orderButton.click()
+    ]);
+
+    // Диагностика: видим, что реально вернул сервер
+    console.log('Статус /api/orders:', response.status());
+    const body = await response.json();
+    console.log('Тело /api/orders:', JSON.stringify(body));
+    const orderNumber = body.order?.number;
+    console.log('Номер заказа:', orderNumber);
 
     const modal = page.getByTestId('modal');
     await expect(modal).toBeVisible();
-    await expect(modal.getByText(String(mockOrder.order.number))).toBeVisible();
+    await expect(modal.getByText(String(12345))).toBeVisible();
 
     await expect(page.getByText('Выберите булки').first()).toBeVisible();
     await expect(page.getByText('Выберите начинку')).toBeVisible();
